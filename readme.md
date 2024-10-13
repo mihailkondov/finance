@@ -2,7 +2,8 @@
 
     # 1 Create virtual environment -> plenty of guides online, look them up
         python -m venv /path/to/new/virtual/environment # create virtual environment
-        Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope Process # This gives you permission to run scripts in current powershell instance
+        Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope Process # This gives you 
+        # permission to run scripts in the current powershell instance
         .venv\Scripts\activate # This runs the script to activate the virtual environment
 
     # 2 Set correct python path so you install packages on the right place (inside the virtual environment)
