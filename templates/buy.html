@@ -1,0 +1,15 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Buy
+{% endblock %}
+
+{% block main %}
+    <h2>Buy a stock:</h2>
+    <form action="/buy" method="post">
+        <input name="symbol" placeholder="Enter stock ticker symbol" type="text">
+        <input name="shares" placeholder="Number of shares" type="number">
+        <button type="submit" value="Buy">Buy</button>
+    </form>
+    <p>Your cash: {{ cash | usd }}</p>
+{% endblock %}

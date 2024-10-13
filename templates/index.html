@@ -1,0 +1,68 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Portfolio
+{% endblock %}
+
+{% with messages = get_flashed_messages() %}
+{% endwith %}
+
+{% block main %}
+    <h2>Current positions:</h2>
+    <div class="centered-container">
+        <table class="table table-striped table-dark" id="portfolio-table">
+            <tr>
+                <th>Stock</th>
+                <th>Number <br>of <br>shares </th>
+                <th class="text-right">Average <br>aquisition <br>price per share</th>
+                <th class="text-right">Position <br>purchase <br>value</th>
+                <th class="text-right">Share<br>price</th>
+                <th class="text-right">Position<br>market<br>value</th>
+            </tr>
+            {% for stock in portfolio %}
+                <tr>
+                    <td>{{ stock.ticker }}</td>
+                    <td>{{ stock.quantity }}</td>
+                    <td class="text-right">{{ stock.weighted_average_price | usd }}</td>
+                    <td class="text-right">{{ stock.position_acquisition_value | usd }}</td>
+                    <td class="text-right">{{ stock.price | usd}}</td>
+                    <td class="text-right">{{ stock.position_market_value | usd}}</td>
+                </tr>
+
+            {% endfor %}
+
+        </table>
+    </div>
+    <div class="centered-container">
+        <table class="table table-striped table-dark" id="profit-table">
+
+            <tr>
+                <th class="text-right">Stocks acquisition value</th>
+                <th class="text-right">Stocks market value</th>
+                <th class="text-right">Unrealized profit</th>
+            </tr>
+            <tr>
+                <td class="text-right">{{ stats.total_acquisition_value | usd }}</td>
+                <td class="text-right">{{ stats.total_in_stocks | usd }}</td>
+                <td class="text-right">{{ stats.unrealized_profit | usd }}</td>
+            </tr>
+
+        </table>
+    </div>
+    <div class="centered-container">
+        <table class="table table-striped table-dark" id="portfolio-summary-table">
+            <tr>
+                <th>Shares owned</th>
+                <th>Cash</th>
+                <th class="text-right">Stocks</th>
+                <th class="text-right">Total portfolio value</th>
+            </tr>
+            <tr>
+                <td>{{ stats.total_shares }}</td>
+                <td>{{ stats.cash | usd }}</td>
+                <td class="text-right">{{ stats.total_in_stocks | usd }}</td>
+                <td class="text-right">{{ stats.total_portfolio_value | usd }}</td>
+            </tr>
+        </table>
+    </div>
+{% endblock %}

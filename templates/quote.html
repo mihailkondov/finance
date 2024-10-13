@@ -1,0 +1,30 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Quote
+{% endblock %}
+
+{% block main %}
+    <h2>Enter stock you are interested in:</h2>
+    <form action="/quote" method="post">
+        <input name="symbol" placeholder="Enter stock ticker symbol" type="text">
+        <button type="submit" value="Quote">Quote</button>
+    </form>
+
+    {% if stock %}
+        <table class="container py-5 table  table-dark text-center">
+            <tr>
+                <th>Company name:</th>
+                <th>Price:</th>
+                <th>Ticker symbol:</th>
+            </tr>
+            <tr>
+                <td>{{ stock.name }}</td>
+                <td>{{ stock.price | usd}}</td>
+                <td>{{ stock.symbol }}</td>
+            </tr>
+        </table>
+
+    {% endif %}
+
+{% endblock %}
