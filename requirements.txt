@@ -1,0 +1,6 @@
+aiohttp
+cs50
+Flask
+pytz
+requests
+Flask-Session2
