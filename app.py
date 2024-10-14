@@ -55,38 +55,31 @@ def index():
         )
         GROUP BY ticker
     """, session["user_id"])
-    # stocks
-    # total_shares = sum(item["quantity"] for item in portfolio_db)
-    # total_acquisition_value = sum(item["position_value"] for item in portfolio_db)
 
- 
     # fetch market value of stocks
-    async def process_portfolio(potfolio_db):
-        portfolio = await fetch_portfolio_data(portfolio_db)
+    portfolio = asyncio.run(fetch_portfolio_data(portfolio_db))
 
-        # pull cash from database
-        user_cash = db.execute("SELECT cash FROM users WHERE id=?", session["user_id"])[0]["cash"]
-        user_cash = float(user_cash)
+    # pull cash from database
+    user_cash = db.execute("SELECT cash FROM users WHERE id=?", session["user_id"])[0]["cash"]
+    user_cash = float(user_cash)
 
-        # calculate stats
-        total_in_stocks = 0
-        total_shares = 0
-        total_acquisition_value = sum(item["position_acquisition_value"] for item in portfolio_db)
-        for stock in portfolio:
-            total_in_stocks += stock['position_market_value']
-            total_shares += stock['quantity']
-        total_portfolio_value = total_in_stocks + user_cash
-        unrealized_profit = total_in_stocks - total_acquisition_value
-        stats = {'cash': user_cash,
-                'total_in_stocks': total_in_stocks,
-                'total_shares': total_shares,
-                'total_portfolio_value': total_portfolio_value,
-                'total_acquisition_value': total_acquisition_value,
-                'unrealized_profit': unrealized_profit}
-        return (portfolio, stats)
-
-    res = asyncio.run(process_portfolio(portfolio_db))
-    return render_template("index.html", portfolio=res[0], stats=res[1])
+    # calculate stats
+    total_in_stocks = 0
+    total_shares = 0
+    total_acquisition_value = sum(item["position_acquisition_value"] for item in portfolio_db)
+    for stock in portfolio:
+        total_in_stocks += stock['position_market_value']
+        total_shares += stock['quantity']
+    total_portfolio_value = total_in_stocks + user_cash
+    unrealized_profit = total_in_stocks - total_acquisition_value
+    stats = {'cash': user_cash,
+            'total_in_stocks': total_in_stocks,
+            'total_shares': total_shares,
+            'total_portfolio_value': total_portfolio_value,
+            'total_acquisition_value': total_acquisition_value,
+            'unrealized_profit': unrealized_profit}
+    
+    return render_template("index.html", portfolio=portfolio, stats=stats)
 
 
 @app.route("/buy", methods=["GET", "POST"])
