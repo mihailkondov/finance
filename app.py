@@ -1,3 +1,4 @@
+import asyncio
 import os
 
 from cs50 import SQL
@@ -5,7 +6,7 @@ from flask import Flask, flash, redirect, render_template, request, session
 from flask_session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from helpers import apology, login_required, lookup, usd
+from helpers import apology, fetch_portfolio_data, login_required, lookup, usd
 
 # Configure application
 app = Flask(__name__)
@@ -58,35 +59,34 @@ def index():
     # total_shares = sum(item["quantity"] for item in portfolio_db)
     # total_acquisition_value = sum(item["position_value"] for item in portfolio_db)
 
+ 
     # fetch market value of stocks
-    stock_prices = []
-    for position in portfolio_db:
-        stock_prices.append(lookup(position["ticker"]))
+    async def process_portfolio(potfolio_db):
+        portfolio = await fetch_portfolio_data(portfolio_db)
 
-    portfolio = [{**item, 'price': float(stock_price['price']), 'position_market_value': item['quantity'] * float(
-        stock_price['price'])} for item, stock_price in zip(portfolio_db, stock_prices)]
+        # pull cash from database
+        user_cash = db.execute("SELECT cash FROM users WHERE id=?", session["user_id"])[0]["cash"]
+        user_cash = float(user_cash)
 
-    # pull cash from database
-    user_cash = db.execute("SELECT cash FROM users WHERE id=?", session["user_id"])[0]["cash"]
-    user_cash = float(user_cash)
+        # calculate stats
+        total_in_stocks = 0
+        total_shares = 0
+        total_acquisition_value = sum(item["position_acquisition_value"] for item in portfolio_db)
+        for stock in portfolio:
+            total_in_stocks += stock['position_market_value']
+            total_shares += stock['quantity']
+        total_portfolio_value = total_in_stocks + user_cash
+        unrealized_profit = total_in_stocks - total_acquisition_value
+        stats = {'cash': user_cash,
+                'total_in_stocks': total_in_stocks,
+                'total_shares': total_shares,
+                'total_portfolio_value': total_portfolio_value,
+                'total_acquisition_value': total_acquisition_value,
+                'unrealized_profit': unrealized_profit}
+        return (portfolio, stats)
 
-    # calculate stats
-    total_in_stocks = 0
-    total_shares = 0
-    total_acquisition_value = sum(item["position_acquisition_value"] for item in portfolio_db)
-    for stock in portfolio:
-        total_in_stocks += stock['position_market_value']
-        total_shares += stock['quantity']
-    total_portfolio_value = total_in_stocks + user_cash
-    unrealized_profit = total_in_stocks - total_acquisition_value
-    stats = {'cash': user_cash,
-             'total_in_stocks': total_in_stocks,
-             'total_shares': total_shares,
-             'total_portfolio_value': total_portfolio_value,
-             'total_acquisition_value': total_acquisition_value,
-             'unrealized_profit': unrealized_profit}
-
-    return render_template("index.html", portfolio=portfolio, stats=stats)
+    res = asyncio.run(process_portfolio(portfolio_db))
+    return render_template("index.html", portfolio=res[0], stats=res[1])
 
 
 @app.route("/buy", methods=["GET", "POST"])
