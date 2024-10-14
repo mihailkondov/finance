@@ -37,8 +37,11 @@
                             <li class="nav-item"><a class="nav-link" href="/history">History</a></li>
                             <li class="nav-item"><a class="nav-link" href="/cash_add">Add Money</a></li>
                             <li class="nav-item"><a class="nav-link" href="/cash_withdraw">Withdraw</a></li>
+                            <li class="nav-item"><a class="nav-link" href="/profits">Profits</a></li>
                         </ul>
                         <ul class="navbar-nav ms-auto mt-2">
+                            <a class="nav-link" href="/"><span class="nav-item">Logged in as {{ session["username"] }}</span></a>
+                            <li class="nav-item"> </li> 
                             <li class="nav-item"><a class="nav-link" href="/logout">Log Out</a></li>
                         </ul>
                     {% else %}

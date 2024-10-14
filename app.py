@@ -286,6 +286,7 @@ def login():
 
         # Remember which user has logged in
         session["user_id"] = rows[0]["id"]
+        session["username"] = rows[0]["username"]
 
         # Redirect user to home page
         return redirect("/")
@@ -323,6 +324,12 @@ def quote():
         return render_template("quote.html", stock=stock)
     else:
         return render_template("quote.html")
+
+
+@app.route("/profits", methods=["GET"])
+def profits():
+    profits = "Feature coming soon"
+    return render_template("profits.html", profits=profits)
 
 
 @app.route("/register", methods=["GET", "POST"])
