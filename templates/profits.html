@@ -19,9 +19,8 @@
                     <div class="centered-container">
                         <table class="table table-striped table-dark" id="{{ ticker }}">
                             <tr>
-                                <th class="text">Timestamp</th>
-                                <th class="text-right">Ticker</th>
-                                <th class="text-right">Type</th>
+                                <th class="text">Sale Timestamp</th>
+                                <th class="text">Ticker</th>
                                 <th class="text-right">Quantity</th>
                                 <th class="text-right">Price</th>
                                 <th class="text-right">Profit</th>
@@ -30,8 +29,7 @@
                                 {% set current_stock_profit.value = current_stock_profit.value + transaction.profit %}
                                 <tr>
                                     <td class="text">{{ transaction.datetime }}</td>
-                                    <td class="text-right">{{ transaction.ticker }}</td>
-                                    <td class="text-right">{{ transaction.type }}</td>
+                                    <td class="text">{{ transaction.ticker }}</td>
                                     <td class="text-right">{{ transaction.quantity }}</td>
                                     <td class="text-right">{{ transaction.price | usd}}</td>
                                     <td class="text-right">{{ transaction.profit | usd}}</td>
@@ -39,7 +37,7 @@
                             {% endfor %}
                             {% set total_profit.value = total_profit.value + current_stock_profit.value %}
                             <tr>
-                                <th colspan="5" class="text-right">Total realized profits from {{ ticker }}</th>
+                                <th colspan="4" class="text-right">Total realized profits from {{ ticker }}</th>
                                 <th colspan="1" class="text-right">{{ current_stock_profit.value | usd }}</th>
                             </tr>
                         </table>
