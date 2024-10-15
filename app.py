@@ -1,6 +1,7 @@
 import asyncio
 import os
 
+from collections import defaultdict, deque
 from cs50 import SQL
 from flask import Flask, flash, redirect, render_template, request, session
 from flask_session import Session
@@ -328,8 +329,58 @@ def quote():
 
 @app.route("/profits", methods=["GET"])
 def profits():
-    profits = "Feature coming soon"
-    return render_template("profits.html", profits=profits)
+    sales = None
+#try:
+    # query for data
+    transactions = db.execute(""" 
+                                SELECT datetime(datetime, 'unixepoch') AS datetime, s.ticker, price, tt.type, t.quantity, p.quantity_left FROM transactions AS t
+                                JOIN stocks AS s ON t.stocks_id = s.id
+                                JOIN users AS u ON u.id = t.users_id
+                                LEFT JOIN portfolio AS p ON p.transactions_id = t.id
+                                JOIN transaction_types AS tt ON tt.id = t.type
+                                WHERE u.id = ?
+                                ORDER BY t.datetime ASC
+    """, session["user_id"])
+    
+    # keys are: datetime, ticker, price, type, quantity
+    # list of dictionaries
+    sales = defaultdict(deque)
+    purchases = defaultdict(deque)
+
+    # split transactions based on stock symbol (ticker) and type (buy/sell)
+    for row in transactions:
+        ticker = row["ticker"] 
+
+        if row["type"] == "buy":
+            purchases[row["ticker"]].append(row) # add buy transactions on stock specific list
+        elif row["type"] == "sell":
+            qs = row["quantity"] # quantity sold
+            ps = row["price"] # price of sale (per share)
+            profit = 0.00
+            
+            while(True):
+                buy = purchases[ticker].popleft()
+                if buy["quantity_left"] == buy["quantity"]:  # no realized profit from such a transaction
+                    break
+
+                qb = buy["quantity"] - buy["quantity_left"] # can't buy more than what's left??
+                pb = buy["price"] # price bought (per share)
+
+                if qb >= qs:  # final sale: transaction quantity = sale quantity
+                    profit = round(profit + qs * ps - qs * pb, 2)
+
+                    buy["quantity"] -= qs #
+                    if buy["quantity"] > 0:
+                        purchases[ticker].appendleft(buy) # return leftover quantity back to the stack
+                    break
+                else:  # regular sale: transaction quantity = buy quantity
+                    profit = round(profit + qb * (ps - pb), 2)
+                    qs -= qb
+
+            sales[ticker].append({**row, **{"profit": profit}})
+
+    sales = {key:sales[key] for key in sorted(sales)}
+    return render_template("profits.html", sales=sales)
 
 
 @app.route("/register", methods=["GET", "POST"])

@@ -3,16 +3,28 @@
     max-width: 800px;
 }
 
-.text-right
-{
-    text-align: right;
-}
-
 .centered-container
 {
     display: flex;
     justify-content: center;
     padding: 0.5em;
+}
+
+.profits-content
+{
+    width: 800px;
+}
+
+.profits-wrapper
+{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.text-right
+{
+    text-align: right;
 }
 
 /* Size for brand */

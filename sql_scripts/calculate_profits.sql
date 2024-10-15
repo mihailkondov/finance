@@ -45,13 +45,12 @@ ORDER BY t.datetime ASC
 
 
 -- Same query as above, but without the unnecessary columns
-SELECT datetime, price, tt.type, quantity FROM transactions AS t
+SELECT datetime, price, s.ticker, tt.type, quantity FROM transactions AS t
 JOIN stocks AS s ON t.stocks_id = s.id
 JOIN users AS u ON u.id = t.users_id
 LEFT JOIN portfolio AS p ON p.transactions_id = t.id
 JOIN transaction_types AS tt ON tt.id = t.type
-WHERE ticker = 'AMD'
-AND u.id = 2
+WHERE u.id = 2
 AND (quantity_left IN (0, NULL) OR tt.type IS 'sell')
 ORDER BY t.datetime ASC
 ;
@@ -87,3 +86,60 @@ ORDER BY t.datetime ASC
 -- | 1728489321 | 133.72 | buy  | 2        |
 -- | 1728931981 | 133.28 | sell | 5        |
 -- +------------+--------+------+----------+
+
+
+-- AMD transactions
+-- Same query as above, but without the unnecessary columns
+SELECT datetime, price, s.ticker, tt.type, quantity FROM transactions AS t
+JOIN stocks AS s ON t.stocks_id = s.id
+JOIN users AS u ON u.id = t.users_id
+LEFT JOIN portfolio AS p ON p.transactions_id = t.id
+JOIN transaction_types AS tt ON tt.id = t.type
+WHERE u.id = 2
+AND (quantity_left IN (0, NULL) OR tt.type IS 'sell')
+AND s.ticker = 'FFWM'
+ORDER BY t.datetime ASC
+;
+
+-- +------------+-------+--------+------+----------+
+-- |  datetime  | price | ticker | type | quantity |
+-- +------------+-------+--------+------+----------+
+-- | 1727890449 | 5.95  | FFWM   | buy  | 2        |
+-- | 1727891089 | 6.75  | FFWM   | buy  | 3        |
+-- | 1728432148 | 6.81  | FFWM   | sell | 2        |
+-- | 1728432430 | 6.8   | FFWM   | sell | 1        |
+-- | 1728432576 | 6.75  | FFWM   | sell | 1        |
+-- | 1728432638 | 6.78  | FFWM   | sell | 1        |
+-- | 1728432712 | 6.81  | FFWM   | sell | 1        |
+-- | 1728432832 | 6.79  | FFWM   | sell | 1        |
+-- +------------+-------+--------+------+----------+
+
+SELECT SUM(quantity), sum(quantity_left), tt.type FROM transactions AS t
+JOIN stocks AS s ON t.stocks_id = s.id
+JOIN users AS u ON u.id = t.users_id
+LEFT JOIN portfolio AS p ON p.transactions_id = t.id
+JOIN transaction_types AS tt ON tt.id = t.type
+WHERE u.id = 2
+-- AND (quantity_left IN (0, NULL) OR tt.type IS 'sell')
+AND s.ticker = 'FFWM'
+GROUP BY tt.type;
+
+
+-- Same query as above, but without the unnecessary columns
+SELECT datetime, t.id, price, s.ticker, tt.type, quantity, quantity_left FROM transactions AS t
+JOIN stocks AS s ON t.stocks_id = s.id
+JOIN users AS u ON u.id = t.users_id
+LEFT JOIN portfolio AS p ON p.transactions_id = t.id
+JOIN transaction_types AS tt ON tt.id = t.type
+WHERE u.id = 2
+AND ticker = 'AMD'
+ORDER BY t.datetime ASC
+;
+
+SELECT t.id, datetime(datetime, 'unixepoch'), s.ticker, tt.type, price, quantity, quantity_left FROM transactions AS t
+JOIN stocks AS s ON s.id = t.stocks_id
+LEFT JOIN portfolio AS p ON t.id = transactions_id
+JOIN transaction_types AS tt ON tt.id = t.type
+WHERE s.ticker = 'KO'
+AND users_id = 2
+ORDER BY datetime ASC;
